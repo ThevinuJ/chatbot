@@ -1,0 +1,632 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account â€” HS Classifier</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --brand-from: #4f46e5;
+            --brand-to: #7c3aed;
+            --glass-bg: rgba(255, 255, 255, 0.07);
+            --glass-bdr: rgba(255, 255, 255, 0.14);
+            --text: #f0f0ff;
+            --muted: rgba(240, 240, 255, 0.55);
+            --input-bg: rgba(255, 255, 255, 0.08);
+            --input-bdr: rgba(255, 255, 255, 0.18);
+            --error-bg: rgba(239, 68, 68, 0.15);
+            --error-bdr: rgba(239, 68, 68, 0.4);
+            --error-text: #fca5a5;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #0d0b1e;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 20px;
+            overflow-x: hidden;
+        }
+
+        .bg-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .blob1 {
+            width: 520px;
+            height: 520px;
+            background: rgba(79, 70, 229, 0.28);
+            top: -140px;
+            left: -100px;
+        }
+
+        .blob2 {
+            width: 420px;
+            height: 420px;
+            background: rgba(124, 58, 237, 0.22);
+            bottom: -120px;
+            right: -80px;
+        }
+
+        .blob3 {
+            width: 280px;
+            height: 280px;
+            background: rgba(16, 185, 129, 0.1);
+            top: 40%;
+            left: 50%;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 100;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-bdr);
+            backdrop-filter: blur(16px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--text);
+            font-size: 20px;
+            font-weight: 600;
+            transition: all 0.25s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.13);
+            transform: scale(1.06);
+        }
+
+        .card {
+            position: relative;
+            z-index: 10;
+            width: 500px;
+            max-width: 96vw;
+            padding: 48px 44px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            border: 1px solid var(--glass-bdr);
+            border-radius: 24px;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+
+        .brand-icon {
+            position: relative;
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--brand-from), var(--brand-to));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.45);
+        }
+
+        .brand-icon::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+        }
+
+        .brand-text {
+            line-height: 1.1;
+        }
+
+        .brand-name {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .brand-tagline {
+            font-size: 11px;
+            color: var(--muted);
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--glass-bdr);
+            margin: 0 0 28px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 13.5px;
+            color: var(--muted);
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+
+        .name-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .name-row .field {
+            margin-bottom: 0;
+        }
+
+        .field {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--muted);
+            margin-bottom: 8px;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--input-bdr);
+            border-radius: 11px;
+            font-size: 14.5px;
+            font-family: inherit;
+            font-weight: 500;
+            background: var(--input-bg);
+            color: var(--text);
+            transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+        }
+
+        input::placeholder {
+            color: rgba(240, 240, 255, 0.3);
+            font-weight: 400;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: rgba(124, 58, 237, 0.7);
+            background: rgba(255, 255, 255, 0.11);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.18);
+        }
+
+        .password-wrap {
+            position: relative;
+        }
+
+        .password-wrap input {
+            padding-right: 46px;
+        }
+
+        .toggle-pw {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--muted);
+            font-size: 16px;
+            line-height: 1;
+            padding: 0;
+            transition: color 0.2s;
+        }
+
+        .toggle-pw:hover {
+            color: var(--text);
+        }
+
+        .hint {
+            font-size: 11.5px;
+            color: rgba(240, 240, 255, 0.35);
+            margin-top: 6px;
+        }
+
+        .msg-box {
+            display: none;
+            gap: 10px;
+            align-items: flex-start;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 13px;
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+
+        .msg-box.error {
+            background: var(--error-bg);
+            border: 1px solid var(--error-bdr);
+            color: var(--error-text);
+        }
+
+        .msg-box.visible {
+            display: flex;
+        }
+
+        .msg-box .icon {
+            font-size: 15px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* Strength bar */
+        .strength-wrap {
+            margin-top: 8px;
+        }
+
+        .strength-bar {
+            height: 3px;
+            border-radius: 4px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease, background 0.3s ease;
+        }
+
+        .strength-label {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 5px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            font-size: 14.5px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            letter-spacing: 0.3px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 18px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 26px rgba(79, 70, 229, 0.5);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .bottom-link {
+            display: block;
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13.5px;
+            color: var(--muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .bottom-link span {
+            color: #a78bfa;
+            font-weight: 600;
+        }
+
+        .bottom-link:hover span {
+            color: #c4b5fd;
+        }
+
+        .card-footer {
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid var(--glass-bdr);
+            text-align: center;
+            font-size: 11.5px;
+            color: rgba(240, 240, 255, 0.3);
+        }
+
+        .card-footer a {
+            color: rgba(167, 139, 250, 0.6);
+            text-decoration: none;
+        }
+
+        .card-footer a:hover {
+            color: #a78bfa;
+        }
+
+        /* Setup banner */
+        .setup-banner {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            background: #7c2d12;
+            border-bottom: 2px solid #ea580c;
+            padding: 12px 20px;
+            font-size: 13px;
+            color: #fed7aa;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .setup-banner strong {
+            color: #fff;
+        }
+
+        .setup-banner code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .setup-banner.visible {
+            display: block;
+        }
+
+        /* Benefits strip */
+        .benefits {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .benefit {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .benefit-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-blob blob1"></div>
+    <div class="bg-blob blob2"></div>
+    <div class="bg-blob blob3"></div>
+
+    <!-- Shown when Firebase config is still placeholder -->
+    <div class="setup-banner" id="setupBanner">
+        âš ï¸ <strong>Firebase is not configured.</strong>
+        Open <code>firebase-config.js</code> and paste in your real Firebase credentials.
+    </div>
+
+    <a href="index.html" class="back-btn" title="Back to Home">&times;</a>
+
+    <div class="card" id="registerPanel">
+
+        <div class="brand">
+            <div class="brand-icon">HS</div>
+            <div class="brand-text">
+                <div class="brand-name">HS Classifier</div>
+                <div class="brand-tagline">CEYLON HS CODE SOLUTIONS</div>
+            </div>
+        </div>
+        <div class="divider"></div>
+
+        <h1>Create your account</h1>
+        <p class="subtitle">Join thousands using HS Classifier to streamline their customs process.</p>
+
+        <!-- Benefits -->
+        <div class="benefits">
+            <div class="benefit">
+                <div class="benefit-dot"></div>Save favourites
+            </div>
+            <div class="benefit">
+                <div class="benefit-dot"></div>Search history
+            </div>
+            <div class="benefit">
+                <div class="benefit-dot"></div>Free forever
+            </div>
+        </div>
+
+        <!-- Name row -->
+        <div class="name-row">
+            <div class="field">
+                <label for="regFirstName">First name</label>
+                <input type="text" id="regFirstName" placeholder="John" autocomplete="given-name">
+            </div>
+            <div class="field">
+                <label for="regLastName">Last name</label>
+                <input type="text" id="regLastName" placeholder="Smith" autocomplete="family-name">
+            </div>
+        </div>
+
+        <div class="field">
+            <label for="regEmail">Email address <span style="color:#ef4444">*</span></label>
+            <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email" required>
+        </div>
+
+        <div class="field">
+            <label for="regPassword">Password <span style="color:#ef4444">*</span></label>
+            <div class="password-wrap">
+                <input type="password" id="regPassword" placeholder="Create a strong password"
+                    autocomplete="new-password" required>
+                <button class="toggle-pw" type="button" id="togglePw1" title="Show/hide">ðŸ‘</button>
+            </div>
+            <div class="strength-wrap">
+                <div class="strength-bar">
+                    <div class="strength-fill" id="strengthFill"></div>
+                </div>
+                <div class="strength-label" id="strengthLabel"></div>
+            </div>
+        </div>
+
+        <div class="field">
+            <label for="regConfirm">Confirm password <span style="color:#ef4444">*</span></label>
+            <div class="password-wrap">
+                <input type="password" id="regConfirm" placeholder="Repeat your password" autocomplete="new-password"
+                    required>
+                <button class="toggle-pw" type="button" id="togglePw2" title="Show/hide">ðŸ‘</button>
+            </div>
+        </div>
+
+        <div class="msg-box error" id="registerError">
+            <span class="icon">âš ï¸</span>
+            <span id="registerErrorMsg"></span>
+        </div>
+
+        <button class="btn" id="registerBtn" type="button">Create Account</button>
+
+        <a href="log-in.html" class="bottom-link">Already have an account? <span>Sign in â†’</span></a>
+
+        <div class="card-footer">
+            By creating an account you agree to our
+            <a href="#">Terms of Service</a> &amp; <a href="#">Privacy Policy</a>.
+        </div>
+    </div>
+
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+    <script type="module">
+    // Initialize EmailJS globally with your confirmed Public Key
+    emailjs.init({
+      publicKey: "iM5wGDDykpN8fcvno",
+    });
+
+    import { auth } from './firebase-config.js';
+    import {
+        createUserWithEmailAndPassword,
+        updateProfile,
+        onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    // 1. Redirect if already signed in
+    onAuthStateChanged(auth, (user) => {
+        if (user) window.location.href = 'index.html';
+    });
+
+    // 2. Form submission handler
+    const registerBtn = document.getElementById('registerBtn');
+    registerBtn.addEventListener('click', async () => {
+        const first = document.getElementById('regFirstName').value.trim();
+        const last = document.getElementById('regLastName').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const password = document.getElementById('regPassword').value;
+        const confirm = document.getElementById('regConfirm').value;
+
+        if (!email || !password) { 
+            document.getElementById('registerErrorMsg').textContent = 'Email and Password are required.';
+            document.getElementById('registerError').classList.add('visible');
+            return; 
+        }
+        if (password !== confirm) { 
+            document.getElementById('registerErrorMsg').textContent = 'Passwords do not match.';
+            document.getElementById('registerError').classList.add('visible');
+            return; 
+        }
+
+        registerBtn.textContent = 'Creating account...';
+        registerBtn.disabled = true;
+
+        try {
+            // A. Create user in Firebase
+            const cred = await createUserWithEmailAndPassword(auth, email, password);
+            const displayName = [first, last].filter(Boolean).join(' ') || email.split('@')[0];
+            await updateProfile(cred.user, { displayName });
+
+            // B. Send Welcoming Email using your specific Template ID: lfrgttl
+            // The keys on the left (to_email, user_name) must match your template tags
+            const response = await emailjs.send("service_bfgvkcf", "lfrgttl", {
+                to_email: email,                  
+                user_name: displayName,           
+                from_name: "ceylonHS Team",       
+                reply_to: "ceylonhscode@gmail.com" 
+            });
+
+            console.log('Email sent successfully!', response.status, response.text);
+
+            // C. Finalize state and redirect
+            localStorage.setItem('isLoggedIn', 'true');
+            sessionStorage.setItem('toastMsg', `Welcome! A confirmation email has been sent to ${email} 📧`);
+            window.location.href = 'index.html';
+
+        } catch (err) {
+            console.error("Registration/Email Error:", err);
+            document.getElementById('registerErrorMsg').textContent = 'Error: ' + err.message;
+            document.getElementById('registerError').classList.add('visible');
+            registerBtn.textContent = 'Create Account';
+            registerBtn.disabled = false;
+        }
+    });
+</script>
+</body>
+
+</html>

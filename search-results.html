@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - HS Code Classifier</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, oklch(0.3 0.18 250) 0%, oklch(0.4 0.15 250) 50%, oklch(0.35 0.2 260) 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .glass-orb {
+            position: fixed;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            pointer-events: none;
+            animation: floatOrb 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 200px;
+            height: 200px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 150px;
+            height: 150px;
+            top: 60%;
+            right: 15%;
+            animation-delay: 5s;
+        }
+
+        .orb-3 {
+            width: 100px;
+            height: 100px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 10s;
+        }
+
+        @keyframes floatOrb {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(50px, -50px) scale(1.1);
+            }
+            66% {
+                transform: translate(-50px, 50px) scale(0.9);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateX(-5px);
+        }
+
+        .back-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: clamp(32px, 6vw, 48px);
+            font-weight: 800;
+            color: white;
+            margin-bottom: 15px;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-info {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(30px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 25px 30px;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .search-again-form {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(30px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-again-form h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+        }
+
+        .search-input-wrapper label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .search-input-wrapper input,
+        .search-input-wrapper textarea {
+            width: 100%;
+            padding: 14px 20px;
+            border: 2px solid oklch(0.3 0.18 250 / 0.2);
+            border-radius: 15px;
+            font-size: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 50px;
+        }
+
+        .search-input-wrapper input:focus,
+        .search-input-wrapper textarea:focus {
+            outline: none;
+            border-color: oklch(0.3 0.18 250);
+            background: white;
+            box-shadow: 0 0 0 4px oklch(0.3 0.18 250 / 0.1);
+        }
+
+        .search-submit-btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 15px;
+            background: oklch(0.3 0.18 250);
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px oklch(0.3 0.18 250 / 0.4);
+            white-space: nowrap;
+            height: 50px;
+        }
+
+        .search-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px oklch(0.3 0.18 250 / 0.6);
+        }
+
+        .search-submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .search-info h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .search-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .search-detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .search-detail-label {
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .search-detail-value {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+            font-size: 18px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .results-container {
+            display: none;
+        }
+
+        .results-container.show {
+            display: block;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(30px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .hs-code {
+            font-size: 32px;
+            font-weight: 800;
+            color: oklch(0.3 0.18 250);
+            letter-spacing: 1px;
+        }
+
+        .relevance-score {
+            background: oklch(0.3 0.18 250);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .description {
+            color: #2d3748;
+            font-size: 16px;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .result-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .chapter-info {
+            font-size: 14px;
+            color: #718096;
+            font-weight: 600;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            margin-top: 30px;
+        }
+
+        .no-results h2 {
+            font-size: 24px;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+
+        .no-results p {
+            font-size: 16px;
+            color: #718096;
+        }
+
+        .error-message {
+            background: rgba(255, 100, 100, 0.95);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .search-input-group {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .search-submit-btn {
+                width: 100%;
+            }
+
+            .search-details {
+                grid-template-columns: 1fr;
+            }
+
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .hs-code {
+                font-size: 24px;
+            }
+
+            .result-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    
+    <div class="glass-orb orb-1"></div>
+    <div class="glass-orb orb-2"></div>
+    <div class="glass-orb orb-3"></div>
+
+    <div class="container">
+        <a href="index.html#finder" class="back-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to Search
+        </a>
+
+        <div class="header">
+            <h1>Search Results</h1>
+        </div>
+
+        <div class="search-again-form">
+            <h2>Search for HS Codes</h2>
+            <form id="newSearchForm">
+                <div class="search-input-group">
+                    <div class="search-input-wrapper">
+                        <label>Product Details</label>
+                        <input type="text" id="newQuery" placeholder="Enter product details to search..." required>
+                    </div>
+                    <button type="submit" class="search-submit-btn" id="searchBtn">Search</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="search-info" id="searchInfo">
+            <h2>Current Search Details</h2>
+            <div class="search-details" id="searchDetails">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>Searching for HS codes...</p>
+        </div>
+
+        <div class="results-container" id="resultsContainer">
+            <!-- Results will be populated here -->
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Three.js Background Animation (same as main page)
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        camera.position.z = 5;
+
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 800;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for(let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 15;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.03,
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.6,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        const geometries = [
+            new THREE.TorusGeometry(0.7, 0.25, 16, 100),
+            new THREE.OctahedronGeometry(0.8),
+            new THREE.IcosahedronGeometry(0.6)
+        ];
+
+        const shapes = [];
+        geometries.forEach((geometry, index) => {
+            const material = new THREE.MeshPhongMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.2,
+                wireframe: true
+            });
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.x = (index - 1) * 3;
+            mesh.position.z = -3;
+            shapes.push(mesh);
+            scene.add(mesh);
+        });
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        const pointLight1 = new THREE.PointLight(0xffffff, 1.5);
+        pointLight1.position.set(5, 5, 5);
+        scene.add(pointLight1);
+
+        const pointLight2 = new THREE.PointLight(0xffffff, 1);
+        pointLight2.position.set(-5, -5, 5);
+        scene.add(pointLight2);
+
+        let mouseX = 0;
+        let mouseY = 0;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            particlesMesh.rotation.y = elapsedTime * 0.05;
+            particlesMesh.rotation.x = elapsedTime * 0.02;
+
+            shapes.forEach((shape, index) => {
+                shape.rotation.x = elapsedTime * (0.3 + index * 0.1);
+                shape.rotation.y = elapsedTime * (0.2 + index * 0.1);
+                shape.position.y = Math.sin(elapsedTime + index) * 0.3;
+            });
+
+            pointLight1.position.x = Math.sin(elapsedTime * 0.5) * 3;
+            pointLight1.position.y = Math.cos(elapsedTime * 0.3) * 3;
+
+            camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.05;
+            camera.position.y += (mouseY * 0.5 - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchParams = {
+            email: urlParams.get('email'),
+            madeIn: urlParams.get('madeIn'),
+            shipTo: urlParams.get('shipTo'),
+            itemPrice: urlParams.get('itemPrice'),
+            currency: urlParams.get('currency'),
+            query: urlParams.get('query')
+        };
+
+        // Set the input field with current query
+        if (searchParams.query) {
+            document.getElementById('newQuery').value = searchParams.query.trim();
+        }
+
+        // Handle new search form submission
+        document.getElementById('newSearchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newQuery = document.getElementById('newQuery').value.trim();
+            if (newQuery) {
+                // Update URL parameters with new query
+                const params = new URLSearchParams({
+                    email: searchParams.email || '',
+                    madeIn: searchParams.madeIn || '',
+                    shipTo: searchParams.shipTo || '',
+                    itemPrice: searchParams.itemPrice || '',
+                    currency: searchParams.currency || 'USD',
+                    query: newQuery
+                });
+                // Reload page with new parameters
+                window.location.href = 'search-results.html?' + params.toString();
+            }
+        });
+
+        // Display search details
+        const searchDetailsContainer = document.getElementById('searchDetails');
+        searchDetailsContainer.innerHTML = `
+            <div class="search-detail-item">
+                <div class="search-detail-label">Product Query</div>
+                <div class="search-detail-value">${searchParams.query || 'N/A'}</div>
+            </div>
+            <div class="search-detail-item">
+                <div class="search-detail-label">Made In</div>
+                <div class="search-detail-value">${searchParams.madeIn || 'N/A'}</div>
+            </div>
+            <div class="search-detail-item">
+                <div class="search-detail-label">Ship To</div>
+                <div class="search-detail-value">${searchParams.shipTo || 'N/A'}</div>
+            </div>
+            <div class="search-detail-item">
+                <div class="search-detail-label">Price</div>
+                <div class="search-detail-value">${searchParams.itemPrice ? searchParams.currency + ' ' + searchParams.itemPrice : 'N/A'}</div>
+            </div>
+        `;
+
+        // Perform search
+        async function performSearch() {
+            const searchBtn = document.getElementById('searchBtn');
+            const newQueryInput = document.getElementById('newQuery');
+            
+            if (!searchParams.query) {
+                document.getElementById('loading').innerHTML = `
+                    <div class="error-message">
+                        <h2>Error</h2>
+                        <p>No search query provided. Please enter product details above.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                searchBtn.disabled = true;
+                newQueryInput.disabled = true;
+                
+                const response = await fetch(`/search?q=${encodeURIComponent(searchParams.query)}`);
+                
+                if (!response.ok) {
+                    throw new Error('Search request failed');
+                }
+
+                const data = await response.json();
+                displayResults(data);
+            } catch (error) {
+                console.error('Search error:', error);
+                document.getElementById('loading').innerHTML = `
+                    <div class="error-message">
+                        <h2>Search Error</h2>
+                        <p>Unable to perform search. Please make sure the server is running and try again.</p>
+                        <p style="font-size: 14px; margin-top: 10px; opacity: 0.8;">${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                searchBtn.disabled = false;
+                newQueryInput.disabled = false;
+            }
+        }
+
+        function displayResults(data) {
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    // ... existing loading/container logic ...
+
+    resultsContainer.innerHTML = data.hits.map(hit => {
+        const doc = hit.document;
+        // Only show the star if logged in
+        const favoriteHtml = isLoggedIn ? 
+            `<span class="favorite-btn" onclick="toggleFavorite(this)">☆</span>` : '';
+
+        return `
+            <div class="result-card" data-code="${doc.hscode}">
+                <div class="result-header">
+                    <div class="hs-code">${doc.hscode || 'N/A'} ${favoriteHtml}</div>
+                    <div class="relevance-score">${relevancePercent}% Match</div>
+                </div>
+                <div class="description">${doc.description}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+            resultsContainer.innerHTML = data.hits.map(hit => {
+                const doc = hit.document;
+                const score = hit.text_match || hit.hybrid_search_info?.rank_fusion_score || 0;
+                const relevancePercent = Math.min(Math.round(score * 10), 100);
+                
+                return `
+                    <div class="result-card">
+                        <div class="result-header">
+                            <div class="hs-code">${doc.hscode || 'N/A'}</div>
+                            <div class="relevance-score">${relevancePercent}% Match</div>
+                        </div>
+                        <div class="description">
+                            ${doc.description || doc.original_description || 'No description available'}
+                        </div>
+                        <div class="result-footer">
+                            <div class="chapter-info">
+                                ${doc.section ? 'Section: ' + doc.section : ''}${doc.section && doc.parent ? ' | ' : ''}${doc.parent ? 'Chapter: ' + doc.parent : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        
+
+        // Start search when page loads
+        performSearch();
+    </script>
+</body>
+</html>

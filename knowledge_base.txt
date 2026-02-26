@@ -1,0 +1,31 @@
+Q: What is CeylonHS?
+
+
+A: It is a web-based search engine that uses AI to find accurate Harmonized System (HS) codes for Sri Lanka Customs.
+
+Q: How does the search work?
+
+
+A: We use a "Semantic Search" engine  that understands product descriptions instead of just matching exact keywords.
+
+Q: Who is this system for?
+
+
+A: It is designed for importers, exporters, clearing agents, and customs officers who need fast classification.
++1
+
+Q: What makes it better than the PDF tariff book?
+
+
+A: Unlike static PDFs, CeylonHS gives instant results, calculates duties, and shows a "confidence score" for accuracy.
++1
+
+Q: What technology is behind it?
+
+
+A: The system runs on a Flask backend with a React-based frontend, powered by the 'all-MiniLM-L12-v2' machine learning model.
+
+Q: Why was this project built?
+
+
+A: To solve the problem of time-consuming manual searches and reduce duty calculation errors in Sri Lanka’s trade infrastructure.

@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In — HS Classifier</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --brand-from: #4f46e5;
+            --brand-to: #7c3aed;
+            --glass-bg: rgba(255, 255, 255, 0.07);
+            --glass-bdr: rgba(255, 255, 255, 0.14);
+            --text: #f0f0ff;
+            --muted: rgba(240, 240, 255, 0.55);
+            --input-bg: rgba(255, 255, 255, 0.08);
+            --input-bdr: rgba(255, 255, 255, 0.18);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #0d0b1e;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .bg-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .blob1 {
+            width: 520px;
+            height: 520px;
+            background: rgba(79, 70, 229, 0.28);
+            top: -140px;
+            left: -100px;
+        }
+
+        .blob2 {
+            width: 420px;
+            height: 420px;
+            background: rgba(124, 58, 237, 0.22);
+            bottom: -120px;
+            right: -80px;
+        }
+
+        .blob3 {
+            width: 280px;
+            height: 280px;
+            background: rgba(16, 185, 129, 0.1);
+            top: 40%;
+            left: 45%;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 100;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-bdr);
+            backdrop-filter: blur(16px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--text);
+            font-size: 20px;
+            font-weight: 600;
+            transition: all 0.25s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.13);
+            transform: scale(1.06);
+        }
+
+        /* Config warning banner */
+        .setup-banner {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            background: #7c2d12;
+            border-bottom: 2px solid #ea580c;
+            padding: 12px 20px;
+            font-size: 13px;
+            color: #fed7aa;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .setup-banner strong {
+            color: #fff;
+        }
+
+        .setup-banner.visible {
+            display: block;
+        }
+
+        .card {
+            position: relative;
+            z-index: 10;
+            width: 440px;
+            max-width: 96vw;
+            padding: 48px 44px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            border: 1px solid var(--glass-bdr);
+            border-radius: 24px;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+
+        .brand-icon {
+            position: relative;
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--brand-from), var(--brand-to));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.45);
+        }
+
+        .brand-icon::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+        }
+
+        .brand-text {
+            line-height: 1.1;
+        }
+
+        .brand-name {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .brand-tagline {
+            font-size: 11px;
+            color: var(--muted);
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--glass-bdr);
+            margin: 0 0 28px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 13.5px;
+            color: var(--muted);
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+
+        .field {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--muted);
+            margin-bottom: 8px;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--input-bdr);
+            border-radius: 11px;
+            font-size: 14.5px;
+            font-family: inherit;
+            font-weight: 500;
+            background: var(--input-bg);
+            color: var(--text);
+            transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+        }
+
+        input::placeholder {
+            color: rgba(240, 240, 255, 0.3);
+            font-weight: 400;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: rgba(124, 58, 237, 0.7);
+            background: rgba(255, 255, 255, 0.11);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.18);
+        }
+
+        .password-wrap {
+            position: relative;
+        }
+
+        .password-wrap input {
+            padding-right: 46px;
+        }
+
+        .toggle-pw {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--muted);
+            font-size: 16px;
+            line-height: 1;
+            padding: 0;
+            transition: color 0.2s;
+        }
+
+        .toggle-pw:hover {
+            color: var(--text);
+        }
+
+        .field-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 7px;
+        }
+
+        .forgot-link {
+            font-size: 12px;
+            color: rgba(167, 139, 250, 0.85);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .forgot-link:hover {
+            color: #c4b5fd;
+        }
+
+        .msg-box {
+            display: none;
+            gap: 10px;
+            align-items: flex-start;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 13px;
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+
+        .msg-box.error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+        }
+
+        .msg-box.success {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+        }
+
+        .msg-box.info {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            color: #c7d2fe;
+        }
+
+        .msg-box.visible {
+            display: flex;
+        }
+
+        .msg-box .icon {
+            font-size: 15px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            font-size: 14.5px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            letter-spacing: 0.3px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 18px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 26px rgba(79, 70, 229, 0.5);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .bottom-link {
+            display: block;
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13.5px;
+            color: var(--muted);
+            text-decoration: none;
+        }
+
+        .bottom-link span {
+            color: #a78bfa;
+            font-weight: 600;
+        }
+
+        .bottom-link:hover span {
+            color: #c4b5fd;
+        }
+
+        .card-footer {
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid var(--glass-bdr);
+            text-align: center;
+            font-size: 11.5px;
+            color: rgba(240, 240, 255, 0.3);
+        }
+
+        .card-footer a {
+            color: rgba(167, 139, 250, 0.6);
+            text-decoration: none;
+        }
+
+        .card-footer a:hover {
+            color: #a78bfa;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-blob blob1"></div>
+    <div class="bg-blob blob2"></div>
+    <div class="bg-blob blob3"></div>
+
+    <!-- Shown when Firebase config is still placeholder -->
+    <div class="setup-banner" id="setupBanner">
+        ⚠️ <strong>Firebase is not configured.</strong>
+        Open <code>firebase-config.js</code> and replace the <code>PASTE_YOUR_...</code> placeholder values with your
+        real Firebase project credentials.
+    </div>
+
+    <a href="index.html" class="back-btn" title="Back to Home">&times;</a>
+
+    <div class="card" id="loginPanel">
+
+        <div class="brand">
+            <div class="brand-icon">HS</div>
+            <div class="brand-text">
+                <div class="brand-name">HS Classifier</div>
+                <div class="brand-tagline">CEYLON HS CODE SOLUTIONS</div>
+            </div>
+        </div>
+        <div class="divider"></div>
+
+        <h1>Welcome back</h1>
+        <p class="subtitle">Sign in to your account to continue.</p>
+
+        <div class="field">
+            <label for="loginEmail">Email address</label>
+            <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+        </div>
+
+        <div class="field">
+            <label for="loginPassword">Password</label>
+            <div class="password-wrap">
+                <input type="password" id="loginPassword" placeholder="Enter your password"
+                    autocomplete="current-password">
+                <button class="toggle-pw" type="button" id="togglePw" title="Show/hide password">👁</button>
+            </div>
+            <div class="field-footer">
+                <a href="#" class="forgot-link" id="forgotLink">Forgot password?</a>
+            </div>
+        </div>
+
+        <div class="msg-box error" id="loginError"><span class="icon">⚠️</span><span id="loginErrorMsg"></span></div>
+        <div class="msg-box success" id="loginSuccess"><span class="icon">✅</span><span id="loginSuccessMsg"></span>
+        </div>
+        <div class="msg-box info" id="loginInfo"><span class="icon">ℹ️</span><span id="loginInfoMsg"></span></div>
+
+        <button class="btn" id="loginBtn" type="button">Sign In</button>
+
+        <a href="register.html" class="bottom-link">New here? <span>Create a free account →</span></a>
+
+        <div class="card-footer">
+            By signing in you agree to our
+            <a href="#">Terms of Service</a> &amp; <a href="#">Privacy Policy</a>.
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth } from './firebase-config.js';
+        import {
+            signInWithEmailAndPassword,
+            fetchSignInMethodsForEmail,
+            sendPasswordResetEmail,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // ── Detect unconfigured Firebase ─────────────────────────────────
+        // If the API key is still the placeholder, nothing will work.
+        // Show a friendly banner so the user knows what to fix.
+        if (!auth.app.options.apiKey || auth.app.options.apiKey.startsWith('PASTE_')) {
+            document.getElementById('setupBanner').classList.add('visible');
+            document.getElementById('loginBtn').disabled = true;
+            document.getElementById('loginBtn').textContent = 'Firebase not configured';
+        }
+
+        // ── Redirect if already signed in ────────────────────────────────
+        onAuthStateChanged(auth, (user) => {
+            if (user) window.location.href = 'index.html';
+        });
+
+        // ── Show/hide password ───────────────────────────────────────────
+        const pwInput = document.getElementById('loginPassword');
+        document.getElementById('togglePw').addEventListener('click', () => {
+            pwInput.type = pwInput.type === 'password' ? 'text' : 'password';
+        });
+
+        // ── Message helpers ──────────────────────────────────────────────
+        function clearMessages() {
+            ['loginError', 'loginSuccess', 'loginInfo'].forEach(id =>
+                document.getElementById(id).classList.remove('visible')
+            );
+        }
+        function showError(msg) {
+            clearMessages();
+            document.getElementById('loginErrorMsg').textContent = msg;
+            document.getElementById('loginError').classList.add('visible');
+        }
+        function showSuccess(msg) {
+            clearMessages();
+            document.getElementById('loginSuccessMsg').textContent = msg;
+            document.getElementById('loginSuccess').classList.add('visible');
+        }
+        function showInfo(msg) {
+            clearMessages();
+            document.getElementById('loginInfoMsg').textContent = msg;
+            document.getElementById('loginInfo').classList.add('visible');
+        }
+
+        // ── Sign In ──────────────────────────────────────────────────────
+        const loginBtn = document.getElementById('loginBtn');
+
+        loginBtn.addEventListener('click', async () => {
+            clearMessages();
+
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email) { showError('Please enter your email address.'); return; }
+            if (!password) { showError('Please enter your password.'); return; }
+
+            loginBtn.textContent = 'Checking…';
+            loginBtn.disabled = true;
+
+            try {
+                // ── Step 1: Check if an account exists for this email ────
+                // fetchSignInMethodsForEmail returns [] if the email is not registered.
+                let methods = [];
+                try {
+                    methods = await fetchSignInMethodsForEmail(auth, email);
+                } catch (_) { /* network issues — proceed to sign-in anyway */ }
+
+                if (methods.length === 0) {
+                    showError(
+                        'No account found for this email address. ' +
+                        'Please register first or check for a typo.'
+                    );
+                    // Add a link-style prompt to register
+                    const errEl = document.getElementById('loginError');
+                    const link = document.createElement('a');
+                    link.href = 'register.html';
+                    link.style.cssText = 'color:#c4b5fd;font-weight:600;text-decoration:underline;margin-left:4px;';
+                    link.textContent = 'Register now →';
+                    errEl.appendChild(link);
+                    loginBtn.textContent = 'Sign In';
+                    loginBtn.disabled = false;
+                    return;
+                }
+
+                // ── Step 2: Attempt sign-in ──────────────────────────────
+                loginBtn.textContent = 'Signing in…';
+                const cred = await signInWithEmailAndPassword(auth, email, password);
+
+                const rawName = cred.user.displayName || email.split('@')[0];
+                const name = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userEmail', cred.user.email);
+                sessionStorage.setItem('toastMsg', `Welcome back, ${name}! 👋`);
+                sessionStorage.setItem('toastIcon', '👋');
+                window.location.href = 'index.html';
+
+            } catch (err) {
+                const map = {
+                    'auth/invalid-email': 'Please enter a valid email address.',
+                    'auth/wrong-password': 'Incorrect password. Please try again.',
+                    'auth/invalid-credential': 'Incorrect password. Please try again.',
+                    'auth/too-many-requests': 'Too many failed attempts. Please wait a few minutes and try again.',
+                    'auth/user-disabled': 'This account has been disabled. Please contact support.',
+                    'auth/network-request-failed': 'Network error — check your internet connection.',
+                };
+                showError(map[err.code] || `Error (${err.code}): ${err.message}`);
+                loginBtn.textContent = 'Sign In';
+                loginBtn.disabled = false;
+            }
+        });
+
+        // Enter key submits
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !loginBtn.disabled) loginBtn.click();
+        });
+
+        // ── Forgot password ──────────────────────────────────────────────
+        document.getElementById('forgotLink').addEventListener('click', async (e) => {
+            e.preventDefault();
+            clearMessages();
+            const email = document.getElementById('loginEmail').value.trim();
+            if (!email) {
+                showError('Please enter your email address above, then click "Forgot password?"');
+                return;
+            }
+            try {
+                // Check account exists first
+                const methods = await fetchSignInMethodsForEmail(auth, email);
+                if (methods.length === 0) {
+                    showError('No account exists with this email. Please register first.');
+                    return;
+                }
+                await sendPasswordResetEmail(auth, email);
+                showSuccess(`Password reset link sent to ${email}. Check your inbox (and spam folder).`);
+            } catch (err) {
+                showError(`Could not send reset email (${err.code}). Please check the address and try again.`);
+            }
+        });
+    </script>
+</body>
+
+</html>
