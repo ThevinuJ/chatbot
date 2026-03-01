@@ -7,7 +7,6 @@
     <title>Harmonized System Classifier - Full Page</title>
     <link rel="stylesheet" href="log-in-register.html">
 
-    /* Google Fonts - Inter */
     <style>
         * {
             margin: 0;
@@ -23,47 +22,47 @@
         }
 
         .main-logo-container {
-    position: fixed;
-    top: 20px;     /* Adjusted for the larger size */
-    left: 20px;
-    z-index: 101; 
-    display: flex;
-    align-items: center;
-    pointer-events: none;
-}
+            position: fixed;
+            top: 20px;     /* Adjusted for the larger size */
+            left: 20px;
+            z-index: 101; 
+            display: flex;
+            align-items: center;
+            pointer-events: none;
+        }
 
-.main-logo-container img {
-    width: 150px;  /* Enhanced Size: increased from 60px */
-    height: auto;
-    
-    /* REMOVE WHITE BACKGROUND: 
-       'multiply' makes white parts transparent on dark backgrounds */
-    mix-blend-mode: multiply; 
-    
-    /* If your background is very dark, 'screen' or 'lighten' might work better.
-       Try changing 'multiply' to 'lighten' if the logo looks too dark. */
-    
-    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
-    transition: transform 0.3s ease;
-}
+        .main-logo-container img {
+            width: 150px;  /* Enhanced Size: increased from 60px */
+            height: auto;
+            
+            /* REMOVE WHITE BACKGROUND: 
+               'multiply' makes white parts transparent on dark backgrounds */
+            mix-blend-mode: multiply; 
+            
+            /* If your background is very dark, 'screen' or 'lighten' might work better.
+               Try changing 'multiply' to 'lighten' if the logo looks too dark. */
+            
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
+            transition: transform 0.3s ease;
+        }
 
-/* Mobile Responsive adjustment */
-@media (max-width: 768px) {
-    .main-logo-container img {
-        width: 80px; /* Slightly smaller on mobile to save space */
-    }
-}
+        /* Mobile Responsive adjustment */
+        @media (max-width: 768px) {
+            .main-logo-container img {
+                width: 80px; /* Slightly smaller on mobile to save space */
+            }
+        }
 
-/* Adjust navbar for mobile so it doesn't overlap the logo */
-@media (max-width: 768px) {
-    .main-logo-container {
-        top: 15px;
-        left: 15px;
-    }
-    .main-logo-container img {
-        width: 45px;
-    }
-}
+        /* Adjust navbar for mobile so it doesn't overlap the logo */
+        @media (max-width: 768px) {
+            .main-logo-container {
+                top: 15px;
+                left: 15px;
+            }
+            .main-logo-container img {
+                width: 45px;
+            }
+        }
 
         /* NEW: Auth Button */
         .auth-container {
@@ -1991,22 +1990,18 @@
             </li>
         </ul>
     </nav>
-    <!-- Auth button: always href="log-in.html" by default; module overrides for logout -->
     <a href="log-in.html" class="auth-container" id="authButton">
         <div class="auth-icon-circle" id="authIconCircle">
-            <!-- Default: person icon (not logged in) -->
             <svg id="authIconPerson" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
             </svg>
         </div>
-        <!-- Profile avatar (shown when logged in) -->
         <span class="profile-avatar" id="profileAvatar"></span>
         <span class="auth-text" id="authText">Register/Log In</span>
     </a>
 
-    <!-- Toast Notification -->
     <div id="toastNotification">
         <span class="toast-icon" id="toastIcon">🎉</span>
         <span id="toastMessage">Welcome!</span>
@@ -2589,7 +2584,6 @@
     </div>
 
 
-    <!-- AI Chatbot Button -->
     <button id="aiChatbotBtn" class="ai-chatbot-button" title="AI Assistant">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2600,9 +2594,7 @@
         </svg>
     </button>
 
-    <!-- AI Chat Window -->
     <div id="chatWindow" class="chat-window">
-        <!-- Header -->
         <div class="chat-header">
             <div class="chat-avatar">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -2619,7 +2611,6 @@
             <button class="chat-close-btn" id="chatCloseBtn">✕</button>
         </div>
 
-        <!-- Messages -->
         <div class="chat-messages" id="chatMessages">
             <div class="chat-message bot">
                 <div class="msg-icon">🤖</div>
@@ -2629,7 +2620,6 @@
             </div>
         </div>
 
-        <!-- Input -->
         <div class="chat-input-area">
             <input type="text" class="chat-input" id="chatInput" placeholder="Ask me anything..." autocomplete="off" />
             <button class="chat-send-btn" id="chatSendBtn">
@@ -3022,7 +3012,10 @@
             const inputEl    = document.getElementById('chatInput');
             const sendBtn    = document.getElementById('chatSendBtn');
 
-            const GROQ_API = 'http://127.0.0.1:5001/chat';
+            // Automatically use local server when developing (including opening file directly), live server when deployed
+            const GROQ_API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
+                ? 'http://127.0.0.1:5001/chat'
+                : 'https://ceylonhs.pythonanywhere.com/chat';
 
             // Toggle open/close
             chatBtn.addEventListener('click', () => {
@@ -3157,8 +3150,6 @@
 
     </script>
 
-    <!-- ═══ FIREBASE AUTH MODULE ════════════════════════════════════════════════ -->
-    <!-- Controls: auth button state, favorites visibility, session sync           -->
     <script type="module">
         import { auth } from './firebase-config.js';
         import {
@@ -3250,7 +3241,6 @@
             });
         }
     </script>
-    <!-- ═══ END: FIREBASE AUTH MODULE ══════════════════════════════════════════ -->
     <footer class="footer-section">
         <div class="footer-container">
             <div class="footer-main">

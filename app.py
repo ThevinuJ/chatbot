@@ -7,7 +7,8 @@ app = Flask(__name__)
 CORS(app)
 
 # --- INITIALIZE GROQ ---
-groq_client = Groq(api_key="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")
+groq_client = Groq(api_key="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")
+
 # --- LOAD KNOWLEDGE BASE ---
 knowledge_base = ""
 kb_path = os.path.join(os.path.dirname(__file__), "knowledge_base.txt")
